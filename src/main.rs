@@ -1,6 +1,10 @@
+#![feature(trace_macros)]
+
 mod grammar;
 mod individual;
 mod population;
+#[macro_use]
+mod utils;
 
 use grammar::*;
 use individual::*;
@@ -14,157 +18,14 @@ fn main() {
     let grammar = Grammar::new(
         "start".into(),
         HashMap::<_, _>::from_iter(IntoIter::new([
-            ("start".into(), Rule::NonTerminal("rest".into())),
-            (
-                "rest".into(),
-                Rule::Or(vec![
-                    Rule::NonTerminal("auxiliary".into()),
-                    Rule::And(vec![
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("rest".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("(".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal(")".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("[".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("]".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("{".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("}".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("(".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal(")".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("[".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("]".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("{".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("}".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("(".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal(")".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("[".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("]".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("{".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("}".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("(".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal(")".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("[".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("]".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                    Rule::And(vec![
-                        Rule::Terminal("{".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::NonTerminal("sep".into()),
-                        Rule::NonTerminal("rest".into()),
-                        Rule::Terminal("}".into()),
-                        Rule::NonTerminal("repetition".into()),
-                    ]),
-                ]),
-            ),
-            (
-                "auxiliary".into(),
-                Rule::Or(vec![
-                    Rule::NonTerminal("symbol".into()),
-                    Rule::NonTerminal("string".into()),
-                    Rule::And(vec![
-                        Rule::NonTerminal("auxiliary".into()),
-                        Rule::NonTerminal("auxiliary".into()),
-                    ]),
-                ]),
-            ),
-            (
-                "repetition".into(),
-                Rule::Or(vec![
-                    Rule::Terminal("*".into()),
-                    Rule::Terminal("+".into()),
-                    Rule::Terminal("?".into()),
-                ]),
-            ),
-            ("sep".into(), Rule::Terminal("|".into())),
-            (
-                "symbol".into(),
-                Rule::Or(vec![
-                    Rule::Terminal("/".into()),
-                    Rule::Terminal(":".into()),
-                    Rule::Terminal("-".into()),
-                    Rule::Terminal("=".into()),
-                    Rule::Terminal("&".into()),
-                    Rule::Terminal("%".into()),
-                    Rule::Terminal("#".into()),
-                    Rule::Terminal(";".into()),
-                    Rule::Terminal("~".into()),
-                    Rule::Terminal("'".into()),
-                    Rule::Terminal(",".into()),
-                    Rule::Terminal("!".into()),
-                    Rule::Terminal("@".into()),
-                    Rule::Terminal("<".into()),
-                    Rule::Terminal("\\.".into()),
-                    Rule::Terminal("\\|".into()),
-                    Rule::Terminal("\\(".into()),
-                    Rule::Terminal("\\)".into()),
-                    Rule::Terminal("\\{".into()),
-                    Rule::Terminal("\\}".into()),
-                    Rule::Terminal("\\[".into()),
-                    Rule::Terminal("\\]".into()),
-                    Rule::Terminal("\\?".into()),
-                    Rule::Terminal("\\+".into()),
-                    Rule::Terminal("\\$".into()),
-                ]),
-            ),
-            (
-                "string".into(),
-                Rule::Or(vec![
-                    Rule::Terminal("\\w".into()),
-                    Rule::Terminal("a-z".into()),
-                    Rule::Terminal("A-Z".into()),
-                    Rule::Terminal("\\d".into()),
-                    Rule::Terminal("\\s".into()),
-                ]),
-            ),
+            rule!(<string> ::= "\\w" | "a-z" | "A-Z" | "\\d" | "\\s"),
+            rule!(<repetition> ::= '*' | '+' | '?'),
+            rule!(<auxiliary> ::= <symbol> | <string> | <auxiliary> <auxiliary>),
+            rule!(<sep> ::= '|'),
+            rule!(<symbol> ::= '/' | ':' | '-' | '=' | '&' | '%' | '#' | ';' | '~' | '\'' | ',' | '!' | '@' | '<' | "\\." | "\\|" | "\\(" | "\\)" | "\\{" | "\\}" | "\\[" | "\\]" | "\\?" | "\\+" | "\\$"),
         ])),
     );
+
     println!("{}", grammar);
 
     let to_match = "fjdksqljf 12321 abcdabcabcdabcbc";
