@@ -35,12 +35,12 @@ macro_rules! segment {
     // pushes segments to a vec and recurses over the tail
     // theses cases only handle the patterns that have the
     // and operator which is just space
-    (@push_or $list:ident $x:tt & $($tail:tt)+) => {
-        $list.push(expression!($x & $($tail)+));
+    (@push_or $list:ident $x:tt $($tail:tt)+) => {
+        $list.push(expression!($x $($tail)+));
     };
 
-    (@push_or $list:ident <$x:ident> & $($tail:tt)+) => {
-        $list.push(expression!(<$x> & $($tail)+));
+    (@push_or $list:ident <$x:ident> $($tail:tt)+) => {
+        $list.push(expression!(<$x> $($tail)+));
     };
 }
 
@@ -61,7 +61,7 @@ macro_rules! expression {
         }
     };
 
-    (<$x:ident> & $($tail:tt)+) => {
+    (<$x:ident> $($tail:tt)+) => {
         {
             let mut _segments = vec![segment!(<$x>)];
             segment!(@push_or _segments $($tail)*);

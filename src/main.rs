@@ -20,7 +20,7 @@ fn main() {
         HashMap::<_, _>::from_iter(IntoIter::new([
             rule!(<string> ::= "\\w" | "a-z" | "A-Z" | "\\d" | "\\s"),
             rule!(<repetition> ::= '*' | '+' | '?'),
-            rule!(<auxiliary> ::= <symbol> | <string> | <auxiliary> & <auxiliary>),
+            rule!(<auxiliary> ::= <symbol> | <string> | <auxiliary> <auxiliary>),
             rule!(<sep> ::= '|'),
             rule!(<symbol> ::= '/' | ':' | '-' | '=' | '&' | '%' | '#' | ';' | '~' | '\'' | ',' | '!' | '@' | '<' | "\\." | "\\|" | "\\(" | "\\)" | "\\{" | "\\}" | "\\[" | "\\]" | "\\?" | "\\+" | "\\$"),
         ])),
