@@ -3,10 +3,6 @@ macro_rules! segment {
         Rule::NonTerminal(stringify!($x).into())
     };
 
-    ($start:ident - $end:ident) => {
-        Rule::Terminal(format!("{}-{}", stringify!($start), stringify!($end)))
-    };
-
     ($x:expr) => {
         Rule::Terminal($x.into())
     };
@@ -15,22 +11,9 @@ macro_rules! segment {
         Rule::Terminal(stringify!($x).into())
     };
 
-    (~$x:tt) => {
-        Rule::Terminal(format!("\\{}", stringify!($x)))
-    };
-
-
     // pushes segments to a vec instead of returning it
     (@push_or $list:ident $x:tt) => {
         $list.push(segment!($x));
-    };
-
-    (@push_or $list:ident ~$x:tt) => {
-        $list.push(segment!(~$x));
-    };
-
-    (@push_or $list:ident $start:ident - $end:ident) => {
-        $list.push(segment!($start - $end));
     };
 
     (@push_or $list:ident <$x:ident>) => {
@@ -41,16 +24,6 @@ macro_rules! segment {
     // these cases only handle patterns that have the `|` operator
     (@push_or $list:ident $x:tt | $($tail:tt)+) => {
         $list.push(segment!($x));
-        segment!(@push_or $list $($tail)+);
-    };
-
-    (@push_or $list:ident ~$x:tt | $($tail:tt)+) => {
-        $list.push(segment!(~$x));
-        segment!(@push_or $list $($tail)+);
-    };
-
-    (@push_or $list:ident $start:ident - $end:ident | $($tail:tt)+) => {
-        $list.push(segment!($start - $end));
         segment!(@push_or $list $($tail)+);
     };
 
@@ -75,22 +48,6 @@ macro_rules! expression {
     ($x:tt | $($tail:tt)+) => {
         {
             let mut _segments = vec![segment!($x)];
-            segment!(@push_or _segments $($tail)*);
-            Rule::Or(_segments)
-        }
-    };
-
-    (~$x:tt | $($tail:tt)+) => {
-        {
-            let mut _segments = vec![segment!(~$x)];
-            segment!(@push_or _segments $($tail)*);
-            Rule::Or(_segments)
-        }
-    };
-
-    ($start:ident - $end:ident | $($tail:tt)+) => {
-        {
-            let mut _segments = vec![segment!($start - $end)];
             segment!(@push_or _segments $($tail)*);
             Rule::Or(_segments)
         }

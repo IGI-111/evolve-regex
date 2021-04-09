@@ -18,7 +18,7 @@ fn main() {
     let grammar = Grammar::new(
         "start".into(),
         HashMap::<_, _>::from_iter(IntoIter::new([
-            rule!(<string> ::= ~w | a-z | A-Z | ~d | ~s),
+            rule!(<string> ::= "\\w" | "a-z" | "A-Z" | "\\d" | "\\s"),
             rule!(<repetition> ::= '*' | '+' | '?'),
             rule!(<auxiliary> ::= <symbol> | <string> | <auxiliary> & <auxiliary>),
             rule!(<sep> ::= '|'),
